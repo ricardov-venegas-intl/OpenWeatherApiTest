@@ -59,6 +59,10 @@ namespace OpenWeatherApiTest.Controllers
                 {
                     result.Alerts = string.Empty;
                 }
+
+                result.WeatherCondition = (response.CurrentWeather.Weather?[0].Main ?? "None")
+                    + " - "
+                    + (response.CurrentWeather.Weather?[0].Description ?? string.Empty);
                 return result;
             }
             catch (Exception ex)

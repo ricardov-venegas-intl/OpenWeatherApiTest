@@ -63,10 +63,18 @@ namespace OpenWeatherApiTest.Tests
                     {
                         CurrentWeather = new CurrentWeather
                         {
-                            Temperature = celsius
+                            Temperature = celsius,
+                            Weather = new List<Weather> {
+                                new Weather
+                                {
+                                    Id = 232,
+                                    Main = "Thunderstorm",
+                                    Description = "thunderstorm with heavy drizzle"
+                                }
+                            }
                         },
                         Alerts = null
-                    });
+                    }) ;
 
             var logger = new Mock<ILogger<WeatherForecastController>>();
 
@@ -81,6 +89,7 @@ namespace OpenWeatherApiTest.Tests
             Assert.AreEqual(celsius, result.TemperatureC);
             Assert.AreEqual(32 + (int)(celsius * 1.8), result.TemperatureF);
             Assert.AreEqual(summary, result.Summary);
+            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
         }
 
 
@@ -99,7 +108,15 @@ namespace OpenWeatherApiTest.Tests
                     {
                         CurrentWeather = new CurrentWeather
                         {
-                            Temperature = 0
+                            Temperature = 0,
+                            Weather = new List<Weather> {
+                                new Weather
+                                {
+                                    Id = 232,
+                                    Main = "Thunderstorm",
+                                    Description = "thunderstorm with heavy drizzle"
+                                }
+                            }
                         },
                         Alerts = new List<Alert>()
                         {
@@ -132,6 +149,66 @@ namespace OpenWeatherApiTest.Tests
             Assert.AreEqual(32, result.TemperatureF);
             Assert.AreEqual("Chilly", result.Summary);
             Assert.AreEqual("Blah\r\nLorem ipsum dolor sit amet\r\n\r\nZZZZ\r\nIn iaculis nunc sed augue lacus viverra vitae.\r\n", result.Alerts);
+            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
+        }
+
+        /// <summary>
+        /// Test result with Alerts
+        /// </summary>
+        /// <returns>Task</returns>
+        [TestMethod]
+        public async Task BasicTestWithMultipleWeatherCondition()
+        {
+            // Arrange
+            var openWeatherMapClient = new Mock<IOpenWeatherMapClient>();
+            openWeatherMapClient.Setup(o => o.OneCall(It.IsAny<decimal>(), It.IsAny<decimal>()))
+                .ReturnsAsync(
+                    new OneCallResponse
+                    {
+                        CurrentWeather = new CurrentWeather
+                        {
+                            Temperature = 0,
+                            Weather = new List<Weather> {
+                                new Weather
+                                {
+                                    Id = 232,
+                                    Main = "Thunderstorm",
+                                    Description = "thunderstorm with heavy drizzle"
+                                },
+                                                                new Weather
+                                {
+                                    Id = 611,
+                                    Main = "Snow",
+                                    Description = "Sleet"
+                                }
+                            }
+                        },
+                        Alerts = new List<Alert>()
+                        {
+                            new Alert
+                            {
+                                Event = "Blah",
+                                Sender = "QQQQ",
+                                Description= "Lorem ipsum dolor sit amet"
+                            }
+                        }
+                    });
+
+            var logger = new Mock<ILogger<WeatherForecastController>>();
+
+            // Act
+            WeatherForecastController controller = new WeatherForecastController(
+                openWeatherMapClient.Object,
+                logger.Object);
+
+            var result = await controller.Get(1.0m, -1.0m);
+
+            // Assert
+            Assert.AreEqual(0, result.TemperatureC);
+            Assert.AreEqual(32, result.TemperatureF);
+            Assert.AreEqual("Chilly", result.Summary);
+            Assert.AreEqual("Blah\r\nLorem ipsum dolor sit amet\r\n", result.Alerts);
+            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
         }
     }
 }

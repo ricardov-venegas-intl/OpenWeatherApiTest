@@ -28,6 +28,11 @@ namespace OpenWeatherApiTest
         public string Summary { get; set; }
 
         /// <summary>
+        /// Weather Condition.
+        /// </summary>
+        public string WeatherCondition { get; set; }
+
+        /// <summary>
         /// Weather Alerts for the zone
         /// </summary>
         public string Alerts { get; set; }
