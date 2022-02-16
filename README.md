@@ -2,20 +2,37 @@
 
 This is a simple test of the https://openweathermap.org/ API.
 
-Set api key using the enviroment
-
-E.g.
-$env:OpenWeatherMapClientConfiguration_ApiKey="fff0000aaaa11111234cccc1234f"
 
 ## Requirements:
 Weather Service Assignment / Project
-Write an http server that uses the Open Weather API that exposes an endpoint that takes in lat/long coordinates. (Does Server take in Coordinates?)
-This endpoint should return:
-* What the weather condition is outside in that area (snow, rain, etc),  (Found this webpage – it may help https://openweathermap.org/weather-conditions#How-to-get-icon-URL) 
-* whether it’s hot, cold, or moderate outside (use your own discretion on what temperature equates to each type), (So for this you’d basically need to set it up so that if the temp is between 0-50 its cold, 50-75 moderate, 75+ Hot) 
-* Whether there are any weather alerts going on in that area,
-o	with what is going on if there is currently an active alert. (https://openweathermap.org/api/one-call-api#listsource)
+Write an http server that uses the Open Weather API that exposes an endpoint that takes in lat/long coordinates. This endpoint should return: what the weather condition is outside in that area (snow, rain, etc),  whether itâ€™s hot, cold, or moderate outside (use your own discretion on what temperature equates to each type and whether there are any weather alerts going on in that area.
 
-The API can be found here: https://openweathermap.org/api. 
-The one-call api returns all of the data while the other apis are piece-mealed sections. 
-You may also find the https://openweathermap.org/faq useful. 
+## Implementation Notes
+
+EndPoint: https://localhost:5001/WeatherForecast
+Parameters: latitude= & longitud
+
+Wep APi Response (WeatherForecast):
+* TemperatureC: Temperature in Celsius.
+* TemperatureF: Temperature in Farenheight.
+* WeatherCondition: What the weather condition is outside in that area (snow, rain, etc) () Based on https://openweathermap.org/weather-conditions#How-to-get-icon-URL.
+* Summary: Whether itâ€™s hot, cold, or moderate outside: If the temp is between 0-50 its cold, 50-75 moderate, 75+ Hot) 
+* Alerts: Text field that indicates Whether there are any weather alerts going on in that area, and list them.
+
+## Notes
+
+* The project/repository runs build and tests on Pull Requests and Merges.
+* Manual tests can be done using swagger when running: https://localhost:5001/swagger/index.html
+
+## Main Components
+WeatherForecastController: Api controller (endpoints)
+OpenWeatherMapClient:  Client for https://openweathermap.org/ . No automated tests designed because no sandbox is provided for openweathermap.org. 
+OneCallResponseToWeatherForecastMapper: Mas the response from openweathermap.org in the reponse for this web api 
+
+## Configuration
+Set api key using the enviroment
+E.g.
+$env:OpenWeatherMapClientConfiguration_ApiKey="key Value"
+
+You get the key value when registed with https://openweathermap.org/ 
+
