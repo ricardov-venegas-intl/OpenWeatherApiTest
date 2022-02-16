@@ -1,7 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using OpenWeatherApiTest.Controllers;
+using OpenWeatherApiTest.Mappers;
 using OpenWeatherApiTest.OpenWeatherMapApi;
 using OpenWeatherApiTest.OpenWeatherMapApi.Models;
 
@@ -18,44 +21,14 @@ namespace OpenWeatherApiTest.Tests
     public class WeatherForecastControllerTests
     {
         /// <summary>
-        /// Temperatures And Summary Tests
+        /// Test result with Alerts
         /// </summary>
-        /// <param name="celsius">Temperature.</param>
-        /// <param name="summary">Expected Summary.</param>
         /// <returns>Task</returns>
         [TestMethod]
-        [DataRow(-33, "Freezing")]
-        [DataRow(-21, "Freezing")]
-        [DataRow(-20, "Bracing")]
-        [DataRow(-15, "Bracing")]
-        [DataRow(-11, "Bracing")]
-        [DataRow(-10, "Chilly")]
-        [DataRow(0, "Chilly")]
-        [DataRow(4, "Chilly")]
-        [DataRow(5, "Cool")]
-        [DataRow(7, "Cool")]
-        [DataRow(9, "Cool")]
-        [DataRow(10, "Mild")]
-        [DataRow(13, "Mild")]
-        [DataRow(14, "Mild")]
-        [DataRow(15, "Warm")]
-        [DataRow(17, "Warm")]
-        [DataRow(24, "Warm")]
-        [DataRow(25, "Balmy")]
-        [DataRow(27, "Balmy")]
-        [DataRow(29, "Balmy")]
-        [DataRow(30, "Hot")]
-        [DataRow(33, "Hot")]
-        [DataRow(34, "Hot")]
-        [DataRow(35, "Sweltering")]
-        [DataRow(37, "Sweltering")]
-        [DataRow(39, "Sweltering")]
-        [DataRow(40, "Scorching")]
-        [DataRow(41, "Scorching")]
-        [DataRow(55, "Scorching")]
-        public async Task TestTemperaturesAndSummary(int celsius, string summary)
+        public async Task BasicTestWithNoAlerts()
         {
             // Arrange
+            var mapper = new OneCallResponseToWeatherForecastMapper();
             var openWeatherMapClient = new Mock<IOpenWeatherMapClient>();
             openWeatherMapClient.Setup(o => o.OneCall(It.IsAny<decimal>(), It.IsAny<decimal>()))
                 .ReturnsAsync(
@@ -63,7 +36,7 @@ namespace OpenWeatherApiTest.Tests
                     {
                         CurrentWeather = new CurrentWeather
                         {
-                            Temperature = celsius,
+                            Temperature = 0,
                             Weather = new List<Weather> {
                                 new Weather
                                 {
@@ -73,25 +46,26 @@ namespace OpenWeatherApiTest.Tests
                                 }
                             }
                         },
-                        Alerts = null
-                    }) ;
+                        Alerts = null,
+                    }); 
 
             var logger = new Mock<ILogger<WeatherForecastController>>();
 
             // Act
             WeatherForecastController controller = new WeatherForecastController(
                 openWeatherMapClient.Object,
+                mapper,
                 logger.Object);
 
             var result = await controller.Get(1.0m, -1.0m);
 
             // Assert
-            Assert.AreEqual(celsius, result.TemperatureC);
-            Assert.AreEqual(32 + (int)(celsius * 1.8), result.TemperatureF);
-            Assert.AreEqual(summary, result.Summary);
-            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
+            Assert.AreEqual(0, result.TemperatureC);
+            Assert.AreEqual(32, result.TemperatureF);
+            Assert.AreEqual("Cold", result.Summary);
+            Assert.AreEqual("No Alerts", result.Alerts);
+            Assert.AreEqual("Thunderstorm", result.WeatherCondition);
         }
-
 
         /// <summary>
         /// Test result with Alerts
@@ -101,6 +75,7 @@ namespace OpenWeatherApiTest.Tests
         public async Task BasicTestWithAlerts()
         {
             // Arrange
+            var mapper = new OneCallResponseToWeatherForecastMapper();
             var openWeatherMapClient = new Mock<IOpenWeatherMapClient>();
             openWeatherMapClient.Setup(o =>o.OneCall(It.IsAny<decimal>(), It.IsAny<decimal>()))
                 .ReturnsAsync(
@@ -139,7 +114,8 @@ namespace OpenWeatherApiTest.Tests
 
             // Act
             WeatherForecastController controller = new WeatherForecastController(
-                openWeatherMapClient.Object, 
+                openWeatherMapClient.Object,
+                mapper,
                 logger.Object);
 
             var result = await controller.Get(1.0m, -1.0m);
@@ -147,9 +123,9 @@ namespace OpenWeatherApiTest.Tests
             // Assert
             Assert.AreEqual(0, result.TemperatureC);
             Assert.AreEqual(32, result.TemperatureF);
-            Assert.AreEqual("Chilly", result.Summary);
-            Assert.AreEqual("Blah\r\nLorem ipsum dolor sit amet\r\n\r\nZZZZ\r\nIn iaculis nunc sed augue lacus viverra vitae.\r\n", result.Alerts);
-            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
+            Assert.AreEqual("Cold", result.Summary);
+            Assert.AreEqual("Source: QQQQ\r\nEvent: Blah\r\nDescription: Lorem ipsum dolor sit amet\r\n\r\nSource: RRRR\r\nEvent: ZZZZ\r\nDescription: In iaculis nunc sed augue lacus viverra vitae.\r\n", result.Alerts);
+            Assert.AreEqual("Thunderstorm", result.WeatherCondition);
         }
 
         /// <summary>
@@ -160,6 +136,7 @@ namespace OpenWeatherApiTest.Tests
         public async Task BasicTestWithMultipleWeatherCondition()
         {
             // Arrange
+            var mapper = new OneCallResponseToWeatherForecastMapper();
             var openWeatherMapClient = new Mock<IOpenWeatherMapClient>();
             openWeatherMapClient.Setup(o => o.OneCall(It.IsAny<decimal>(), It.IsAny<decimal>()))
                 .ReturnsAsync(
@@ -199,6 +176,7 @@ namespace OpenWeatherApiTest.Tests
             // Act
             WeatherForecastController controller = new WeatherForecastController(
                 openWeatherMapClient.Object,
+                mapper,
                 logger.Object);
 
             var result = await controller.Get(1.0m, -1.0m);
@@ -206,9 +184,37 @@ namespace OpenWeatherApiTest.Tests
             // Assert
             Assert.AreEqual(0, result.TemperatureC);
             Assert.AreEqual(32, result.TemperatureF);
-            Assert.AreEqual("Chilly", result.Summary);
-            Assert.AreEqual("Blah\r\nLorem ipsum dolor sit amet\r\n", result.Alerts);
-            Assert.AreEqual("Thunderstorm - thunderstorm with heavy drizzle", result.WeatherCondition);
+            Assert.AreEqual("Cold", result.Summary);
+            Assert.AreEqual("Source: QQQQ\r\nEvent: Blah\r\nDescription: Lorem ipsum dolor sit amet\r\n", result.Alerts);
+            Assert.AreEqual("Thunderstorm", result.WeatherCondition);
+        }
+
+        [TestMethod]
+        public void WeatherForecastControllerConstructorArgumentVerification()
+        {
+            // Arrange
+            var mapper = new OneCallResponseToWeatherForecastMapper();
+            var openWeatherMapClient = new Mock<IOpenWeatherMapClient>();
+            var logger = new Mock<ILogger<WeatherForecastController>>();
+
+            // Act/Assert
+            Assert.ThrowsException<ArgumentNullException>(
+                () => new WeatherForecastController(
+                    null,
+                    mapper,
+                    logger.Object));
+
+            Assert.ThrowsException<ArgumentNullException>(
+                () => new WeatherForecastController(
+                    openWeatherMapClient.Object,
+                    null,
+                    logger.Object));
+
+            Assert.ThrowsException<ArgumentNullException>(
+                () => new WeatherForecastController(
+                    openWeatherMapClient.Object,
+                    mapper,
+                    null));
         }
     }
 }

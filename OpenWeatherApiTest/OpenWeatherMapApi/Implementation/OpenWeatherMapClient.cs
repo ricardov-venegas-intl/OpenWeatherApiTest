@@ -21,6 +21,8 @@ namespace OpenWeatherApiTest.OpenWeatherMapApi.Implementation
         /// <param name="clientConfiguration"></param>
         public OpenWeatherMapClient(OpenWeatherMapClientConfiguration clientConfiguration)
         {
+            _= clientConfiguration ?? throw new ArgumentNullException(nameof(clientConfiguration));
+
             this.clientConfiguration = clientConfiguration;
         }
 
