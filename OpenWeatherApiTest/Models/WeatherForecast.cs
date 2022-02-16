@@ -1,17 +1,12 @@
 using System;
 
-namespace OpenWeatherApiTest
+namespace OpenWeatherApiTest.Models
 {
     /// <summary>
     /// WeatherForecast.
     /// </summary>
     public class WeatherForecast
     {
-        /// <summary>
-        /// Date of the forecast.
-        /// </summary>
-        public DateTime Date { get; set; }
-
         /// <summary>
         /// Temperature in Celsious.
         /// </summary>
