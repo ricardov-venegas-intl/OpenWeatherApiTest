@@ -9,6 +9,10 @@ Write an http server that uses the Open Weather API that exposes an endpoint tha
 
 ## Implementation Notes
 
+Understanding of the requirements: 
+
+Create a web api endpoint that functions as a simplified facade for the openweathermap.org OneCall API.
+
 EndPoint: https://localhost:5001/WeatherForecast
 Parameters: latitude= & longitud
 
