@@ -124,7 +124,7 @@ namespace OpenWeatherApiTest.Tests
             Assert.AreEqual(0, result.TemperatureC);
             Assert.AreEqual(32, result.TemperatureF);
             Assert.AreEqual("Cold", result.Summary);
-            Assert.AreEqual("Source: QQQQ\r\nEvent: Blah\r\nDescription: Lorem ipsum dolor sit amet\r\n\r\nSource: RRRR\r\nEvent: ZZZZ\r\nDescription: In iaculis nunc sed augue lacus viverra vitae.\r\n", result.Alerts);
+            Assert.AreEqual("Source: QQQQ\nEvent: Blah\nDescription: Lorem ipsum dolor sit amet\n\nSource: RRRR\nEvent: ZZZZ\nDescription: In iaculis nunc sed augue lacus viverra vitae.\n", result.Alerts.Replace("\r\n", "\n"));
             Assert.AreEqual("Thunderstorm", result.WeatherCondition);
         }
 
@@ -185,7 +185,7 @@ namespace OpenWeatherApiTest.Tests
             Assert.AreEqual(0, result.TemperatureC);
             Assert.AreEqual(32, result.TemperatureF);
             Assert.AreEqual("Cold", result.Summary);
-            Assert.AreEqual("Source: QQQQ\r\nEvent: Blah\r\nDescription: Lorem ipsum dolor sit amet\r\n", result.Alerts);
+            Assert.AreEqual("Source: QQQQ\nEvent: Blah\nDescription: Lorem ipsum dolor sit amet\n", result.Alerts.Replace("\r\n", "\n"));
             Assert.AreEqual("Thunderstorm", result.WeatherCondition);
         }
 
