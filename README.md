@@ -25,9 +25,10 @@ Wep APi Response (WeatherForecast):
 * Manual tests can be done using swagger when running: https://localhost:5001/swagger/index.html
 
 ## Main Components
-WeatherForecastController: Api controller (endpoints)
-OpenWeatherMapClient:  Client for https://openweathermap.org/ . No automated tests designed because no sandbox is provided for openweathermap.org. 
-OneCallResponseToWeatherForecastMapper: Mas the response from openweathermap.org in the reponse for this web api 
+
+* WeatherForecastController: Api controller (endpoints)
+* OpenWeatherMapClient:  Client for https://openweathermap.org/ . No automated tests designed because no sandbox is provided for openweathermap.org. 
+* OneCallResponseToWeatherForecastMapper: Mas the response from openweathermap.org in the reponse for this web api 
 
 ## Configuration
 Set api key using the enviroment
